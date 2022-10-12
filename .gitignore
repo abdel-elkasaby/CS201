@@ -1,3 +1,6 @@
 .vscode
 .git
 *.tar.gz
+*.o
+*.a
+*.so
