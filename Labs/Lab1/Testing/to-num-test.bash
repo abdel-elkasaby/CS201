@@ -34,7 +34,7 @@ do
     esac
 done
 
-gcc -Wall -g -o ${PROG} ../${PROG}.c 1> out.log 2> warn.log
+gcc -Wall -g -o ${PROG} ${PROG}.c 1> out.log 2> warn.log
 
 if [ $? -ne 0 ]
 then
