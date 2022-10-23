@@ -41,3 +41,7 @@ tar:
 	tar cvfz $(shell basename $(CURDIR)).tar.gz *.[ch] ?akefile
 	@echo "\nVERIFICATION:\n"
 	tar tvf $(shell basename $(CURDIR)).tar.gz
+
+f2h: ${PROG1}
+
+h2f: ${PROG2}
