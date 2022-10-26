@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
                 floatDouble = 1;
                 break;
             case 'H':
-                printf("./float-2-hex [OPTION ...]\n");
+                printf("Usage: ./float-2-hex [OPTION ...]\n");
                 printf("\t-f   convert the input into floats for hex output (this is the default)\n");
                 printf("\t-d   convert the input into doubles for hex output\n");
                 printf("\t-H   display this help message and exit\n");

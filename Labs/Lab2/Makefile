@@ -29,7 +29,7 @@ ${PROG1}.o: ${PROG1}.c
 	${CC} ${CFLAGS} -c $<
 
 ${PROG2}: ${PROG2}.o
-	${CC} ${CFLAGS} -o $@ $^
+	${CC} ${CFLAGS} -o $@ $^ -lm
 
 ${PROG2}.o: ${PROG2}.c
 	${CC} ${CFLAGS} -c $<
