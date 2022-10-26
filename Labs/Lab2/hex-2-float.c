@@ -123,15 +123,20 @@ int main(int argc, char *argv[]) {
     
 
     while(fgets(buf, BUFFER_SIZE, file) != NULL) {
-        unsigned long val = strtol(buf, NULL, 16);
+        //unsigned long val = strtol(buf, NULL, 16);
+        unsigned long val = 0;
         unsigned long exp = 0;
-        unsigned int signMask = 0x1 << (fracbits + expbits);
-        unsigned int frac = 0x1;
-        unsigned int pMask = 0x1 << (fracbits + expbits);
-        unsigned int expMask = 0x1;
+        unsigned long signMask = 0x1l << (fracbits + expbits);
+        unsigned long fracMask = 0x1l << (fracbits - 1);
+        unsigned long pMask = 0x1l << (fracbits + expbits);
+        unsigned long expMask = 0x1l;
         char *sign;
         unsigned long exp2 = 0;
         int newexp = 0;
+        double frac = 0;
+        int currexp = -1;
+        double value = 0;
+        sscanf(buf, "%lx", &val);
         
         for (int i = 0; i < expbits - 1; i++) {
             expMask <<= 1;
@@ -139,11 +144,6 @@ int main(int argc, char *argv[]) {
         }
         expMask <<= fracbits;
         exp = val & expMask;
-
-        for (int i = 0; i < fracbits - 1; i++) {
-            frac <<= 1;
-            frac |= 0x1;
-        }
 
         exp2 = exp >> fracbits;
         newexp = (int) exp2 - expbias;
@@ -159,6 +159,14 @@ int main(int argc, char *argv[]) {
             pMask >>= 1;
             printf("%d", (val & pMask) ? 1 : 0);
         }
+
+        for (int i = 0; i < fracbits; i++) {
+            if (val & fracMask) frac += pow(2, currexp);
+            currexp--;
+            fracMask >>= 1;
+        }
+
+        //printing s e f under float
         printf("\n\ts ");
         for (int i = 0; i < expbits; i++) printf("e");
         printf(" ");
@@ -170,7 +178,7 @@ int main(int argc, char *argv[]) {
             newexp = 1 - expbias;
         }
         else if (exp == expMask) {
-            if ((frac & val) == 0) {
+            if ((fracMask & val) == 0) {
                 if ((signMask & val) == 0) printf("\tpositive infinity\n\n");
                 else printf("\tnegative infinity\n\n");
             }
@@ -179,13 +187,20 @@ int main(int argc, char *argv[]) {
             }
             continue;
         }
+        else frac = frac + fracadd;
+
+        value = frac * pow(2, newexp);
+
         if ((signMask & val) == 0) sign = "positive";
-        else sign = "negative";
+        else {
+            sign = "negative";
+            value *= -1;
+        }
         printf("\tsign:\t\t%s\n", sign);
         printf("\texponent:\t%d\n", newexp);
-        printf("\tfraction:\t\n");
-        printf("\tvalue:\t\t\n");
-        printf("\tvalue:\t\t\n\n");
+        printf("\tfraction:\t%0.20f\n", frac);
+        printf("\tvalue:\t\t%0.20f\n", value);
+        printf("\tvalue:\t\t%0.20e\n\n", value);
         
     }
 
