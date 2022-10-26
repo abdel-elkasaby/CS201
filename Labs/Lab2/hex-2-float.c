@@ -117,13 +117,76 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\tfraction add\t: %d\n", fracadd);
         fprintf(stderr, "\texponent bits\t: %d\n", expbits);
         fprintf(stderr, "\texponent bias\t: %d\n", expbias);
-        fprintf(stderr, "\tverbose\t\t: yes\n");
+        fprintf(stderr, "\tverbose\t\t: yes\n\n");
     }
 
+    
+
     while(fgets(buf, BUFFER_SIZE, file) != NULL) {
-        //do stuff
-        long int val = strtol(buf, NULL, 16);
-        printf("%ld\n", val);
+        unsigned long val = strtol(buf, NULL, 16);
+        unsigned long exp = 0;
+        unsigned int signMask = 0x1 << (fracbits + expbits);
+        unsigned int frac = 0x1;
+        unsigned int pMask = 0x1 << (fracbits + expbits);
+        unsigned int expMask = 0x1;
+        char *sign;
+        unsigned long exp2 = 0;
+        int newexp = 0;
+        
+        for (int i = 0; i < expbits - 1; i++) {
+            expMask <<= 1;
+            expMask |= 0x1;
+        }
+        expMask <<= fracbits;
+        exp = val & expMask;
+
+        for (int i = 0; i < fracbits - 1; i++) {
+            frac <<= 1;
+            frac |= 0x1;
+        }
+
+        exp2 = exp >> fracbits;
+        newexp = (int) exp2 - expbias;
+
+        printf("%s", buf);
+        printf("\t%d ", (val & pMask) ? 1 : 0);
+        for (int i = expbits; i > 0; i--) {
+            pMask >>= 1;
+            printf("%d", (val & pMask) ? 1 : 0);
+        }
+        printf(" ");
+        for (int i = fracbits; i > 0; i--) {
+            pMask >>= 1;
+            printf("%d", (val & pMask) ? 1 : 0);
+        }
+        printf("\n\ts ");
+        for (int i = 0; i < expbits; i++) printf("e");
+        printf(" ");
+        for (int i = 0; i < fracbits; i++) printf("f");
+        printf("\n");
+
+        if (exp == 0) {
+            printf("\tdenormalized value\n");
+            newexp = 1 - expbias;
+        }
+        else if (exp == expMask) {
+            if ((frac & val) == 0) {
+                if ((signMask & val) == 0) printf("\tpositive infinity\n\n");
+                else printf("\tnegative infinity\n\n");
+            }
+            else {
+                printf("\tNaN\n\n");
+            }
+            continue;
+        }
+        if ((signMask & val) == 0) sign = "positive";
+        else sign = "negative";
+        printf("\tsign:\t\t%s\n", sign);
+        printf("\texponent:\t%d\n", newexp);
+        printf("\tfraction:\t\n");
+        printf("\tvalue:\t\t\n");
+        printf("\tvalue:\t\t\n\n");
+        
     }
 
     return EXIT_SUCCESS;
