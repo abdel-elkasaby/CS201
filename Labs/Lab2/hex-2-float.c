@@ -15,6 +15,7 @@
 int main(int argc, char *argv[]) {
     FILE *file = stdin;
     char *filename = NULL;
+    char buf[BUFFER_SIZE] = {0};
 
     int numbits = 32;
     int fracbits = 23;
@@ -119,6 +120,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "\tverbose\t\t: yes\n");
     }
 
-    
+    while(fgets(buf, BUFFER_SIZE, file) != NULL) {
+        //do stuff
+        long int val = strtol(buf, NULL, 16);
+        printf("%ld\n", val);
+    }
+
     return EXIT_SUCCESS;
 }
