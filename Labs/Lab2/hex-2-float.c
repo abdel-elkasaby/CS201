@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
             newexp = 1 - expbias;
         }
         else if (exp == expMask) {
-            if ((fracMask & val) == 0) {
+            if (frac == 0) {
                 if ((signMask & val) == 0) printf("\tpositive infinity\n\n");
                 else printf("\tnegative infinity\n\n");
             }
@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
             value *= -1;
         }
         printf("\tsign:\t\t%s\n", sign);
-        printf("\texponent:\t%d\n", newexp);
+        printf("\texponent:\t%-10d\n", newexp);
         printf("\tfraction:\t%0.20f\n", frac);
         printf("\tvalue:\t\t%0.20f\n", value);
         printf("\tvalue:\t\t%0.20e\n\n", value);
