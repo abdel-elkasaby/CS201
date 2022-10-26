@@ -204,5 +204,7 @@ int main(int argc, char *argv[]) {
         
     }
 
+    if (file != stdin) fclose(file);
+
     return EXIT_SUCCESS;
 }
