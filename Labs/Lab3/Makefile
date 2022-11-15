@@ -9,7 +9,7 @@ DEFINES =
 
 CFLAGS = ${DEBUG} ${DEFINES} -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
 	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
-	-Wdeclaration-after-statement -Wextra -Wpedantic #-Werror
+	-Wdeclaration-after-statement -Wextra -Wpedantic -Werror
 
 PROG1 = push_pop
 PROG2 = stack_status
