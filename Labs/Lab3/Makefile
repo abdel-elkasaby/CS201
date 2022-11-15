@@ -23,11 +23,11 @@ all: ${PROG1}
 ${PROG1}: ${PROG1}.o ${PROG2}.o
 	${CC} ${CFLAGS} -o $@ $^
 
-${PROG1}.o: ${PROG1}.c
+${PROG1}.o: ${PROG1}.c ${PROG1}.h
 	${CC} ${CFLAGS} -c $<
 
-${PROG2}.o: ${PROG2}.c
-	${CC} ${CFLAGS} -c $<
+${PROG2}.o: ${PROG2}.c ${PROG1}.h
+	${CC} ${CFLAGS} -c $< 
 
 clean cls:
 	-rm -f ${PROG1} *.o *~ \#*

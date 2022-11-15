@@ -62,15 +62,37 @@ int main(int argc, char *argv[]) {
                 ifile = fopen(optarg, "r");
                 if (!ifile) {
                     perror("failed to open file");
-                    return(EXIT_FAILURE);
+                    return EXIT_FAILURE;
                 }
                 break;
             case 'o':
                 ofile = fopen(optarg, "r");
                     if (!ofile) {
                         perror("failed to open file");
-                        return(EXIT_FAILURE);
+                        return EXIT_FAILURE;
                     }
+                break;
+            case 'b':
+                stack_bot = strtol(optarg, NULL, 16);
+                if (stack_bot < stack_limit) {
+                    fprintf(stderr, "stack botton must be higher than stack limit\n");
+                    return EXIT_FAILURE;
+                }
+                else if (stack_bot % 8) {
+                    fprintf(stderr, "stack_bot value must be a multiple of 8\n");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'l':
+                stack_limit = strtol(optarg, NULL, 16);
+                if (stack_bot < stack_limit) {
+                    fprintf(stderr, "stack botton must be higher than stack limit\n");
+                    return EXIT_FAILURE;
+                }
+                else if (stack_limit % 8) {
+                    fprintf(stderr, "stack_limit value must be a multiple of 8\n");
+                    return EXIT_FAILURE;
+                }
                 break;
             case 'h':
                 printf("%s\n\toptions: %s\n", argv[0], GETOPT_STRING);
