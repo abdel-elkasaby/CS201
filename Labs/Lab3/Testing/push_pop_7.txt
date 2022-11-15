@@ -1,0 +1,19 @@
+
+
+   
+
+
+push
+push rax
+push %rex
+push
+push $ghi
+push youKnowWho
+
+pop
+pop rax
+pop $ghi
+pop %rex
+
+status
+status xyz
