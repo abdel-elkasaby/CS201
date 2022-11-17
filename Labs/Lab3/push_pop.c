@@ -21,6 +21,7 @@
 //   pop %reg
 
 int is_verbose = 0;
+FILE *ofile = NULL;
 static unsigned long stack_bot = DEF_STACK_BOT; // the high address for the stack
 static unsigned long stack_limit = DEF_STACK_LIMIT; // the low address for the stack
 static unsigned long rsp = DEF_RSP; // the initial value for the rsp register
@@ -50,7 +51,10 @@ static void push_value(char *reg) {
 
 int main(int argc, char *argv[]) {
     FILE *ifile = stdin;
-    FILE *ofile = stdout;
+    ofile = stdout;
+    char buf[BUFFER_SIZE] = {0};
+    int rows;
+    long bytes;
 
     {
         int opt = 0;
@@ -66,7 +70,7 @@ int main(int argc, char *argv[]) {
                 }
                 break;
             case 'o':
-                ofile = fopen(optarg, "r");
+                ofile = fopen(optarg, "w");
                     if (!ofile) {
                         perror("failed to open file");
                         return EXIT_FAILURE;
@@ -94,6 +98,16 @@ int main(int argc, char *argv[]) {
                     return EXIT_FAILURE;
                 }
                 break;
+            case 's':
+                rsp = strtol(optarg, NULL, 16);
+                if (rsp > stack_bot || rsp < stack_limit) {
+                    fprintf(stderr, "initial rsp value outside of stack\n");
+                    return EXIT_FAILURE;
+                }
+                break;
+            case 'v':
+                is_verbose = 1;
+                break;
             case 'h':
                 printf("%s\n\toptions: %s\n", argv[0], GETOPT_STRING);
                 printf("\ti: name of input file\n");
@@ -112,7 +126,53 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    bytes = stack_bot - stack_limit + 0x8;
+    rows = bytes/8;
+
+    stack = (unsigned long *) calloc(rows, REG_SIZE);
+
+    if (is_verbose) printf(">> allocating stack: %ld bytes %d rows\n", bytes, rows);
+
     //#error lots of stuff goes in here
+    while(fgets(buf, BUFFER_SIZE, ifile)) {
+        char *remain = buf;
+        char *reg;
+        // int option = 0; //1 for status, 2 for push, 3 for pop
+
+        remain = strtok(remain, WHITESPACE);
+        if (!remain) continue;
+        //printf("PARSED: %s OPTION: %d\n", remain, option);
+        if (strcmp(remain, CMD_STATUS) == 0) {
+            stack_status(stack, registers, rsp, stack_bot, stack_limit);
+        }
+        else if (strcmp(remain, CMD_PUSH) == 0) {
+            printf("PUSH\n");
+            remain = strtok(NULL, WHITESPACE);
+            if (remain[0] == '$') {
+                printf("value mode\n");
+                reg = remain + 1;
+                printf("new string: %s\n", reg);
+            }
+            else if (remain[0] == '%') {
+                printf("register mode\n");
+                
+            }
+            else {
+                fprintf(ofile, "unrecognized operand for push: %s\n", remain);
+                continue;
+            }
+        }
+        else if (strcmp(remain, CMD_POP) == 0) {
+            printf("POP\n");
+            remain = strtok(NULL, WHITESPACE);
+        }
+
+        
+    }
+    
+    if (ifile != stdin) fclose(ifile);
+    if (ofile != stdout) fclose(ofile);
+    if (stack) free(stack);
     
     return EXIT_SUCCESS;
 }

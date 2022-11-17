@@ -2,7 +2,7 @@
  * November 11, 2022
  * Portland State University CS201
  * Defines and function prototype
- * This code was written by the instructor Jesse Chaney
+ * This code was written by the instructor Jesse Chaney and modified by me
  */
 
 #pragma once
@@ -15,6 +15,11 @@
 # define REG_RCX 2
 # define REG_RDX 3
 
+# define RAX "rax"
+# define RBX "rbx"
+# define RCX "rcx"
+# define RDX "rdx"
+
 # define CMD_STATUS "status"
 # define CMD_PUSH "push"
 # define CMD_POP "pop"
@@ -24,7 +29,7 @@
 # define DEF_RSP 0x130
 
 # define REG_SIZE (sizeof(long))
-# define WHITESPACE " \t"
+# define WHITESPACE " \t\n"
 
 // i: name of input file
 // o: name of output file

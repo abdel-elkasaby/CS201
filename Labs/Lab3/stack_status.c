@@ -15,6 +15,7 @@
 #include "push_pop.h"
 
 extern int is_verbose;
+extern FILE *ofile;
 
 void stack_status(unsigned long *stack, unsigned long *registers, unsigned long rsp
                     , unsigned long stack_bot, unsigned long stack_limit) {
@@ -22,22 +23,19 @@ void stack_status(unsigned long *stack, unsigned long *registers, unsigned long 
 
     if (is_verbose) fprintf(stderr, ">> status called\n");
 
-    printf("register_values:\n");
-    printf("\t%3s:\t\t0x%08lx\n", "%rsp", rsp);
+    fprintf(ofile, "register_values:\n");
+    fprintf(ofile, "\t%3s:\t\t0x%08lx\n", "%rsp", rsp);
 
     for(unsigned long i = REG_RAX; i <= REG_RDX; i++) {
         reg_name[2] = 'a' + i;
-        printf("\t%3s:\t\t0x%08lx\n", reg_name, registers[i]);
+        fprintf(ofile, "\t%3s:\t\t0x%08lx\n", reg_name, registers[i]);
     }
 
-    printf("stack:\n\taddress\t\tvalue\n");
+    fprintf(ofile, "stack:\n\taddress\t\tvalue\n");
 
     for(unsigned long i = stack_bot, j = 0; i >= stack_limit; i -= REG_SIZE, j++) {
-        printf("%s\t0x%08lx\t0x%08lx\n"
-               , i == rsp ? ">" : ""
-               , i
-               , stack[j]);
+        fprintf(ofile, "%s\t0x%08lx\t0x%08lx\n", i == rsp ? ">" : "", i, stack[j]);
     }
     
-    printf("\n");
+    fprintf(ofile, "\n");
 }
