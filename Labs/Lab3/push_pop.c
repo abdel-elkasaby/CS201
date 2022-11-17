@@ -21,6 +21,7 @@
 //   pop %reg
 
 int is_verbose = 0;
+int rows = 0;
 FILE *ofile = NULL;
 static unsigned long stack_bot = DEF_STACK_BOT; // the high address for the stack
 static unsigned long stack_limit = DEF_STACK_LIMIT; // the low address for the stack
@@ -36,29 +37,17 @@ static unsigned long registers[REG_RDX + 1] = { // the general purpose registers
 static void pop(char *);
 static void push_reg(char *);
 static void push_value(char *);
-
-static void pop(char *reg) {
-    //#error stuff goes in here
-}
-
-static void push_reg(char *reg) {
-    //#error stuff goes in here
-}
-
-static void push_value(char *reg) {
-    //#error stuff goes in here
-}
+static int checkReg(char *);
 
 int main(int argc, char *argv[]) {
     FILE *ifile = stdin;
-    ofile = stdout;
     char buf[BUFFER_SIZE] = {0};
-    int rows;
     long bytes;
-
+    ofile = stdout;
+    
     {
         int opt = 0;
-        int res_count = 0;
+        //int res_count = 0;
 
         while ((opt = getopt(argc, argv, GETOPT_STRING)) != -1) {
             switch (opt) {
@@ -68,13 +57,15 @@ int main(int argc, char *argv[]) {
                     perror("failed to open file");
                     return EXIT_FAILURE;
                 }
+                if (is_verbose) fprintf(stderr, "input file: %s\n", optarg);
                 break;
             case 'o':
                 ofile = fopen(optarg, "w");
-                    if (!ofile) {
-                        perror("failed to open file");
-                        return EXIT_FAILURE;
-                    }
+                if (!ofile) {
+                    perror("failed to open file");
+                    return EXIT_FAILURE;
+                }
+                if (is_verbose) fprintf(stderr, "output file: %s\n", optarg);
                 break;
             case 'b':
                 stack_bot = strtol(optarg, NULL, 16);
@@ -131,9 +122,7 @@ int main(int argc, char *argv[]) {
 
     stack = (unsigned long *) calloc(rows, REG_SIZE);
 
-    if (is_verbose) printf(">> allocating stack: %ld bytes %d rows\n", bytes, rows);
-
-    //#error lots of stuff goes in here
+    if (is_verbose) fprintf(ofile, ">> allocating stack: %ld bytes %d rows\n", bytes, rows);
 
     //NOTE TO SELF: MUST CHANGE ALL PRINTF TO FPRINTF
     while(fgets(buf, BUFFER_SIZE, ifile)) {
@@ -148,17 +137,24 @@ int main(int argc, char *argv[]) {
             stack_status(stack, registers, rsp, stack_bot, stack_limit);
         }
         else if (strcmp(remain, CMD_PUSH) == 0) {
-            printf("PUSH\n");
+            // printf("PUSH\n");
             remain = strtok(NULL, WHITESPACE);
+            if (!remain) continue;
             if (remain[0] == '$') {
-                printf("value mode\n");
+                char *check;
+                // printf("value mode\n");
                 reg = remain + 1;
-                printf("new string: %s\n", reg);
+                strtoul(reg, &check, 16);
+                if (check == reg) fprintf(ofile, "cannot parse number\n");
+                else push_value(reg);
+                // printf("new string: %s\n", reg);
             }
             else if (remain[0] == '%') {
-                printf("register mode\n");
+                // printf("register mode\n");
                 reg = remain + 1;
-                printf("new string: %s\n", reg);
+                // printf("new string: %s\n", reg);
+                if (!checkReg(reg)) fprintf(ofile, "unrecognized register: %%%s\n", reg);
+                else push_reg(reg);
             }
             else {
                 fprintf(ofile, "unrecognized operand for push: %s\n", remain);
@@ -166,15 +162,18 @@ int main(int argc, char *argv[]) {
             }
         }
         else if (strcmp(remain, CMD_POP) == 0) {
-            printf("POP\n");
+            // printf("POP\n");
             remain = strtok(NULL, WHITESPACE);
+            if (!remain) continue;
             if (remain[0] == '%') {
-                printf("register\n");
+                // printf("register\n");
                 reg = remain + 1;
-                printf("new string: %s\n", reg);
+                // printf("new string: %s\n", reg);
+                if (!checkReg(reg)) fprintf(ofile, "unrecognized register: %%%s\n", reg);
+                else pop(reg);
             }
         }
-        else printf("command not recognized: %s", remain);
+        else printf("command not recognized: %s\n", remain);
     }
     
     if (ifile != stdin) fclose(ifile);
@@ -182,4 +181,62 @@ int main(int argc, char *argv[]) {
     if (stack) free(stack);
     
     return EXIT_SUCCESS;
+}
+
+static void pop(char *reg) {
+    int regNum = checkReg(reg) - 1;
+    if (rsp == stack_bot) {
+        fprintf(ofile, "at bottom of stack\n");
+        return;
+    }
+
+    if (is_verbose) fprintf(stderr, ">> pop: %04lx %%%s\n", rsp, reg);
+
+    //printf("RSP: %08lx RSP-STACK_LIM: %08lx\n", rsp, rsp - stack_limit);
+    registers[regNum] = stack[rows - ((rsp - stack_limit)/8 + 1)];
+    rsp += 0x8;
+    //printf("ROW OF RSP: 0x%08lx VAL OF STACK: 0x%08lx\n", rsp, stack[(rsp - stack_limit)/0x8]);
+    return;    
+}
+
+static void push_reg(char *reg) {
+    int regNum = checkReg(reg) - 1;
+
+    if (rsp == stack_limit) {
+        fprintf(ofile, "overflow of stack\n");
+        return;
+    }
+    if (is_verbose) fprintf(stderr, ">> push reg: %04lx %%%s\n", rsp, reg);
+    rsp -= 0x8;
+    stack[rows - ((rsp - stack_limit)/8 + 1)] = registers[regNum];
+
+    
+
+    return;
+}
+
+static void push_value(char *reg) {
+    unsigned long val = strtoul(reg, NULL, 16);
+    
+    if (is_verbose) fprintf(stderr, ">> push val: 0x%04lx 0x%04lx\n", rsp, val);
+
+    if (rsp == stack_limit) {
+        fprintf(ofile, "overflow of stack\n");
+        return;
+    }
+
+    rsp -= 0x8;
+    stack[rows - ((rsp - stack_limit)/8 + 1)] = val;
+
+    if (is_verbose) fprintf(stderr, "  >> push: new rsp 0x%04lx\n", rsp);
+    return;
+}
+
+static int checkReg(char *reg) {
+    if (strcmp(reg, RAX) == 0) return 1;
+    else if (strcmp(reg, RBX) == 0) return 2;
+    else if (strcmp(reg, RCX) == 0) return 3;
+    else if (strcmp(reg, RDX) == 0) return 4;
+    
+    return 0;
 }

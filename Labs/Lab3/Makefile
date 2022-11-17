@@ -7,7 +7,13 @@ CC = gcc
 DEBUG = -g
 DEFINES = 
 
-CFLAGS = ${DEBUG} ${DEFINES} -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
+CFLAGS = ${DEBUG} ${DEFINES} ${OPTIONS}
+
+TESTFLAGS = ${DEBUG} ${DEFINES} -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
+	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
+	-Wdeclaration-after-statement -Wextra -Wpedantic
+
+OPTIONS = -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
 	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
 	-Wdeclaration-after-statement -Wextra -Wpedantic -Werror
 
@@ -29,8 +35,19 @@ ${PROG1}.o: ${PROG1}.c ${PROG1}.h
 ${PROG2}.o: ${PROG2}.c ${PROG1}.h
 	${CC} ${CFLAGS} -c $< 
 
+test: ${PROG1}test
+
+${PROG1}test: ${PROG1}test.o ${PROG2}test.o
+	${CC} ${TESTFLAGS} -o $@ $^
+
+${PROG1}test.o: ${PROG1}.c ${PROG1}.h
+	${CC} ${TESTFLAGS} -c $< -o $@
+
+${PROG2}test.o: ${PROG2}.c ${PROG1}.h
+	${CC} ${TESTFLAGS} -c $< -o $@
+
 clean cls:
-	-rm -f ${PROG1} *.o *~ \#*
+	-rm -f ${PROG1} ${PROG1}test *.o *~ \#* 
 
 tar:
 	tar cvfz $(shell basename $(CURDIR)).tar.gz *.[ch] ?akefile
