@@ -153,6 +153,7 @@ int main(int argc, char *argv[]) {
                 // printf("register mode\n");
                 reg = remain + 1;
                 // printf("new string: %s\n", reg);
+                if (is_verbose) fprintf(stderr, ">> push reg: 0x%04lx %%%s\n", rsp, reg);
                 if (!checkReg(reg)) fprintf(ofile, "unrecognized register: %%%s\n", reg);
                 else push_reg(reg);
             }
@@ -169,8 +170,13 @@ int main(int argc, char *argv[]) {
                 // printf("register\n");
                 reg = remain + 1;
                 // printf("new string: %s\n", reg);
+                if (is_verbose) fprintf(stderr, ">> pop: 0x%04lx %%%s\n", rsp, reg);
                 if (!checkReg(reg)) fprintf(ofile, "unrecognized register: %%%s\n", reg);
                 else pop(reg);
+            }
+            else {
+                fprintf(ofile, "unrecognized operand for pop: %s\n", remain);
+                continue;
             }
         }
         else printf("command not recognized: %s\n", remain);
@@ -190,8 +196,6 @@ static void pop(char *reg) {
         return;
     }
 
-    if (is_verbose) fprintf(stderr, ">> pop: %04lx %%%s\n", rsp, reg);
-
     //printf("RSP: %08lx RSP-STACK_LIM: %08lx\n", rsp, rsp - stack_limit);
     registers[regNum] = stack[rows - ((rsp - stack_limit)/8 + 1)];
     rsp += 0x8;
@@ -206,7 +210,6 @@ static void push_reg(char *reg) {
         fprintf(ofile, "overflow of stack\n");
         return;
     }
-    if (is_verbose) fprintf(stderr, ">> push reg: %04lx %%%s\n", rsp, reg);
     rsp -= 0x8;
     stack[rows - ((rsp - stack_limit)/8 + 1)] = registers[regNum];
 
