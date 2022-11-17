@@ -134,6 +134,8 @@ int main(int argc, char *argv[]) {
     if (is_verbose) printf(">> allocating stack: %ld bytes %d rows\n", bytes, rows);
 
     //#error lots of stuff goes in here
+
+    //NOTE TO SELF: MUST CHANGE ALL PRINTF TO FPRINTF
     while(fgets(buf, BUFFER_SIZE, ifile)) {
         char *remain = buf;
         char *reg;
@@ -172,8 +174,7 @@ int main(int argc, char *argv[]) {
                 printf("new string: %s\n", reg);
             }
         }
-
-        
+        else printf("command not recognized: %s", remain);
     }
     
     if (ifile != stdin) fclose(ifile);
