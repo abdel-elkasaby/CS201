@@ -155,7 +155,8 @@ int main(int argc, char *argv[]) {
             }
             else if (remain[0] == '%') {
                 printf("register mode\n");
-                
+                reg = remain + 1;
+                printf("new string: %s\n", reg);
             }
             else {
                 fprintf(ofile, "unrecognized operand for push: %s\n", remain);
@@ -165,6 +166,11 @@ int main(int argc, char *argv[]) {
         else if (strcmp(remain, CMD_POP) == 0) {
             printf("POP\n");
             remain = strtok(NULL, WHITESPACE);
+            if (remain[0] == '%') {
+                printf("register\n");
+                reg = remain + 1;
+                printf("new string: %s\n", reg);
+            }
         }
 
         
