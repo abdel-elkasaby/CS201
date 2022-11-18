@@ -9,13 +9,15 @@ DEFINES =
 
 CFLAGS = ${DEBUG} ${DEFINES} ${OPTIONS}
 
-TESTFLAGS = ${DEBUG} ${DEFINES} -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
-	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
-	-Wdeclaration-after-statement -Wextra -Wpedantic
+TESTFLAGS = ${DEBUG} ${DEFINES} ${TESTOPTIONS}
 
 OPTIONS = -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
 	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
 	-Wdeclaration-after-statement -Wextra -Wpedantic -Werror
+
+TESTOPTIONS = -Wall -Wshadow -Wunreachable-code -Wredundant-decls \
+	-Wmissing-declarations -Wold-style-definition -Wmissing-prototypes \
+	-Wdeclaration-after-statement -Wextra -Wpedantic
 
 PROG1 = push_pop
 PROG2 = stack_status
