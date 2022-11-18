@@ -124,7 +124,7 @@ int ok_mul_short2(short x, short y, short *dest) {
         "imulw %3;"
         "movw %%ax, %0;"
         "seto %%dl;"
-        "movzbw %%dl, %1;"
+        "movzb %%dl, %1;"
         : "=r" (*dest), "=r" (result)
         : "r" (x), "r" (y)
         : "%ax", "%dx"
