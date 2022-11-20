@@ -69,8 +69,12 @@ int main(int argc, char *argv[]) {
                 break;
             case 'b':
                 stack_bot = strtol(optarg, NULL, 16);
-                if (stack_bot < stack_limit) {
+                if (stack_bot <= stack_limit) {
                     fprintf(stderr, "stack botton must be higher than stack limit\n");
+                    return EXIT_FAILURE;
+                }
+                if (rsp > stack_bot || rsp < stack_limit) {
+                    fprintf(stderr, "initial rsp value outside of stack\n");
                     return EXIT_FAILURE;
                 }
                 else if (stack_bot % 8) {
@@ -80,8 +84,12 @@ int main(int argc, char *argv[]) {
                 break;
             case 'l':
                 stack_limit = strtol(optarg, NULL, 16);
-                if (stack_bot < stack_limit) {
+                if (stack_bot <= stack_limit) {
                     fprintf(stderr, "stack botton must be higher than stack limit\n");
+                    return EXIT_FAILURE;
+                }
+                if (rsp > stack_bot || rsp < stack_limit) {
+                    fprintf(stderr, "initial rsp value outside of stack\n");
                     return EXIT_FAILURE;
                 }
                 else if (stack_limit % 8) {
@@ -93,6 +101,10 @@ int main(int argc, char *argv[]) {
                 rsp = strtol(optarg, NULL, 16);
                 if (rsp > stack_bot || rsp < stack_limit) {
                     fprintf(stderr, "initial rsp value outside of stack\n");
+                    return EXIT_FAILURE;
+                }
+                else if (rsp % 8) {
+                    fprintf(stderr, "initial rsp value must be a multiple of 8\n");
                     return EXIT_FAILURE;
                 }
                 break;
