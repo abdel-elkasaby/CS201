@@ -69,44 +69,12 @@ int main(int argc, char *argv[]) {
                 break;
             case 'b':
                 stack_bot = strtol(optarg, NULL, 16);
-                if (stack_bot <= stack_limit) {
-                    fprintf(stderr, "stack botton must be higher than stack limit\n");
-                    return EXIT_FAILURE;
-                }
-                if (rsp > stack_bot || rsp < stack_limit) {
-                    fprintf(stderr, "initial rsp value outside of stack\n");
-                    return EXIT_FAILURE;
-                }
-                else if (stack_bot % 8) {
-                    fprintf(stderr, "stack_bot value must be a multiple of 8\n");
-                    return EXIT_FAILURE;
-                }
                 break;
             case 'l':
                 stack_limit = strtol(optarg, NULL, 16);
-                if (stack_bot <= stack_limit) {
-                    fprintf(stderr, "stack botton must be higher than stack limit\n");
-                    return EXIT_FAILURE;
-                }
-                if (rsp > stack_bot || rsp < stack_limit) {
-                    fprintf(stderr, "initial rsp value outside of stack\n");
-                    return EXIT_FAILURE;
-                }
-                else if (stack_limit % 8) {
-                    fprintf(stderr, "stack_limit value must be a multiple of 8\n");
-                    return EXIT_FAILURE;
-                }
                 break;
             case 's':
                 rsp = strtol(optarg, NULL, 16);
-                if (rsp > stack_bot || rsp < stack_limit) {
-                    fprintf(stderr, "initial rsp value outside of stack\n");
-                    return EXIT_FAILURE;
-                }
-                else if (rsp % 8) {
-                    fprintf(stderr, "initial rsp value must be a multiple of 8\n");
-                    return EXIT_FAILURE;
-                }
                 break;
             case 'v':
                 is_verbose = 1;
@@ -128,6 +96,29 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+
+    if (stack_bot <= stack_limit) {
+        fprintf(stderr, "stack botton must be higher than stack limit\n");
+        return EXIT_FAILURE;
+    }
+    else if (stack_limit % 8) {
+        fprintf(stderr, "stack_limit value must be a multiple of 8\n");
+        return EXIT_FAILURE;
+    }
+    if (rsp > stack_bot || rsp < stack_limit) {
+        fprintf(stderr, "initial rsp value outside of stack\n");
+        return EXIT_FAILURE;
+    }
+    else if (stack_bot % 8) {
+        fprintf(stderr, "stack_bot value must be a multiple of 8\n");
+        return EXIT_FAILURE;
+    }
+    else if (rsp % 8) {
+        fprintf(stderr, "initial rsp value must be a multiple of 8\n");
+        return EXIT_FAILURE;
+    }
+
+
 
     bytes = stack_bot - stack_limit + 0x8;
     rows = bytes/8;
@@ -233,7 +224,7 @@ static void push_reg(char *reg) {
 static void push_value(char *reg) {
     unsigned long val = strtoul(reg, NULL, 16);
     
-    if (is_verbose) fprintf(stderr, ">> push val: 0x%04lx 0x%04lx\n", rsp, val);
+    if (is_verbose) fprintf(stderr, ">> push val: 0x%04lx 0x%04ld\n", rsp, val);
 
     if (rsp == stack_limit) {
         fprintf(ofile, "overflow of stack\n");
