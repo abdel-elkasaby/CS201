@@ -22,6 +22,7 @@
 
 int is_verbose = 0;
 int rows = 0;
+FILE *ifile = NULL;
 FILE *ofile = NULL;
 static unsigned long stack_bot = DEF_STACK_BOT; // the high address for the stack
 static unsigned long stack_limit = DEF_STACK_LIMIT; // the low address for the stack
@@ -38,12 +39,15 @@ static void pop(char *);
 static void push_reg(char *);
 static void push_value(char *);
 static int checkReg(char *);
+void onExit(void);
 
 int main(int argc, char *argv[]) {
-    FILE *ifile = stdin;
     char buf[BUFFER_SIZE] = {0};
     long bytes;
+    ifile = stdin;
     ofile = stdout;
+
+    atexit(onExit);
     
     {
         int opt = 0;
@@ -184,11 +188,7 @@ int main(int argc, char *argv[]) {
         }
         else printf("command not recognized: %s\n", remain);
     }
-    
-    if (ifile != stdin) fclose(ifile);
-    if (ofile != stdout) fclose(ofile);
-    if (stack) free(stack);
-    
+
     return EXIT_SUCCESS;
 }
 
@@ -215,8 +215,6 @@ static void push_reg(char *reg) {
     }
     rsp -= 0x8;
     stack[rows - ((rsp - stack_limit)/8 + 1)] = registers[regNum];
-
-    
 
     return;
 }
@@ -245,4 +243,15 @@ static int checkReg(char *reg) {
     else if (strcmp(reg, RDX) == 0) return 4;
     
     return 0;
+}
+
+void onExit(void) {
+    if (ifile != stdin) fclose(ifile);
+    if (ofile != stdout) fclose(ofile);
+    if (stack) {
+        free(stack);
+        stack = NULL;
+    }
+    
+    return;
 }
