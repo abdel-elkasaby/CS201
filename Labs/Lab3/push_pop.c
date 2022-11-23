@@ -246,8 +246,8 @@ static int checkReg(char *reg) {
 }
 
 void onExit(void) {
-    if (ifile != stdin) fclose(ifile);
-    if (ofile != stdout) fclose(ofile);
+    if (ifile != stdin && ifile != NULL) fclose(ifile);
+    if (ofile != stdout && ofile != NULL) fclose(ofile);
     if (stack) {
         free(stack);
         stack = NULL;
