@@ -8,5 +8,6 @@ add_compile_options(
 add_executable(asm asm.c)
 add_executable(fork fork.c)
 add_executable(process process.c)
+add_executable(zomb zomb.c)
 
-set_property(TARGET asm fork process PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(TARGET asm fork process zomb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
